@@ -1,12 +1,14 @@
 package cli
 
 import (
+	"context"
 	"github.com/schidstorm/sshd-puller/config"
 	"github.com/schidstorm/sshd-puller/puller"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"time"
 )
 
 func Run() error {
@@ -23,14 +25,16 @@ func Run() error {
 				return err
 			}
 
-			cfg := &config.Config{}
+			cfg := &config.Config{
+				LoopTime: 1 * time.Minute,
+			}
 			err = yaml.Unmarshal(configFileData, cfg)
 			if err != nil {
 				logrus.Errorln(err)
 				return err
 			}
 
-			return puller.Run(cfg)
+			return puller.RunLoop(context.Background(), cfg)
 		},
 	}
 

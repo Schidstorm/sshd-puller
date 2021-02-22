@@ -1,12 +1,14 @@
 package puller
 
 import (
+	"context"
 	api2 "github.com/schidstorm/sshd-puller/api"
 	"github.com/schidstorm/sshd-puller/config"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 )
 
 func Run(cfg *config.Config) error {
@@ -29,6 +31,19 @@ func Run(cfg *config.Config) error {
 	if err != nil {
 		logrus.Errorln(err)
 		return err
+	}
+
+	return nil
+}
+
+func RunLoop(ctx context.Context, cfg *config.Config) error {
+	for {
+		err := Run(cfg)
+		if err != nil {
+			logrus.Errorln(err)
+		}
+
+		time.Sleep(cfg.LoopTime)
 	}
 
 	return nil
