@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -11,7 +12,13 @@ type Api struct {
 	Endpoint string
 }
 
-func (receiver *Api) GetKeys(serverKey string) ([]string, error)  {
+type GetKeysResponse struct {
+	Success bool     `json:"success"`
+	Error   string   `json:"error"`
+	Data    []string `json:"data"`
+}
+
+func (receiver *Api) GetKeys(serverKey string) ([]string, error) {
 	res, err := http.Get(fmt.Sprintf("%s/serverKeys?key=%s", receiver.Endpoint, serverKey))
 	if err != nil {
 		return nil, err
@@ -23,11 +30,14 @@ func (receiver *Api) GetKeys(serverKey string) ([]string, error)  {
 		return nil, err
 	}
 
-	var keys []string
-	err = json.Unmarshal(buffer, &keys)
+	response := &GetKeysResponse{}
+	err = json.Unmarshal(buffer, response)
 	if err != nil {
 		return nil, err
 	}
+	if !response.Success {
+		return nil, errors.New(response.Error)
+	}
 
-	return keys, nil
+	return response.Data, nil
 }
