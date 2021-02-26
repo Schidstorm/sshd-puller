@@ -1,4 +1,7 @@
 serverKey: server3
-endpoint: http://localhost:8080
+endpoints:
+  - http://localhost:8080
 authorizedKeysFile: auth.txt
-loopTime: "1m30s"
+loopTime: "1m"
+retryTimeout: "1s"
+tries: 1

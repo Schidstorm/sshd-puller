@@ -8,7 +8,9 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"time"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func Run() error {
@@ -25,16 +27,23 @@ func Run() error {
 				return err
 			}
 
-			cfg := &config.Config{
-				LoopTime: 1 * time.Minute,
-			}
+			cfg := config.DefaultConfig()
 			err = yaml.Unmarshal(configFileData, cfg)
 			if err != nil {
 				logrus.Errorln(err)
 				return err
 			}
 
-			return puller.RunLoop(context.Background(), cfg)
+			mainContext, cancelFunc := context.WithCancel(context.Background())
+			signals := make(chan os.Signal, 1)
+			signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+			go func() {
+				sig := <-signals
+				logrus.Infof("received signal %s", sig)
+				cancelFunc()
+			}()
+
+			return puller.RunLoop(mainContext, cfg)
 		},
 	}
 

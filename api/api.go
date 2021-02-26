@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,8 +19,13 @@ type GetKeysResponse struct {
 	Data    []string `json:"data"`
 }
 
-func (receiver *Api) GetKeys(serverKey string) ([]string, error) {
-	res, err := http.Get(fmt.Sprintf("%s/serverKeys?key=%s", receiver.Endpoint, serverKey))
+func (receiver *Api) GetKeys(ctx context.Context, serverKey string) ([]string, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/serverKeys?key=%s", receiver.Endpoint, serverKey), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
