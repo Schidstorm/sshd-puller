@@ -1,4 +1,4 @@
 serverKey: server3
 endpoint: http://localhost:8080
-authorizedKeysFile: C:\Users\Domin\go\src\github.com\schidstorm\sshd-puller\auth.txt
+authorizedKeysFile: auth.txt
 loopTime: "1m30s"
